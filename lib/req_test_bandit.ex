@@ -38,7 +38,7 @@ defmodule ReqTestBandit do
   end
 
   defp put_bandit(request) do
-    if request.options[:bandit] and not is_nil(request.options[:plug]) do
+    if Req.Request.get_option(request, :bandit, false) and not is_nil(request.options[:plug]) do
       ref = make_ref()
       callers = Process.get(:"$callers", [])
       :telemetry.attach(ref, [:bandit, :request, :start], &__MODULE__.listener/4, callers)
