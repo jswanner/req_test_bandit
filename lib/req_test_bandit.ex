@@ -132,7 +132,7 @@ defmodule ReqTestBandit do
           {:x509, "~> 0.9.2"}
       """)
 
-      raise "missing bandit dependency"
+      raise "missing x509 dependency"
     end
   end
 end
