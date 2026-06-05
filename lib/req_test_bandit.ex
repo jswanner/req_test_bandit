@@ -13,8 +13,6 @@ defmodule ReqTestBandit do
       ]
   """
 
-  require Logger
-
   @doc """
   Runs the plugin.
 
@@ -64,6 +62,8 @@ defmodule ReqTestBandit do
     end
   else
     defp run_bandit(_request) do
+      require Logger
+
       Logger.error("""
       Could not find bandit dependency.
 
@@ -124,6 +124,8 @@ defmodule ReqTestBandit do
     end
   else
     defp run_https(_request) do
+      require Logger
+
       Logger.error("""
       Could not find bandit dependency.
 
