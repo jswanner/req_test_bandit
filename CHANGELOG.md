@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.1.3 (2026-06-16)
+
+  * Bump req requirement to allow ~> 0.6.0
+
 ## v0.1.2 (2026-06-04)
 
   * Resolve Elixir 1.20 compiler warnings

@@ -2,7 +2,7 @@ defmodule ReqTestBandit.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jswanner/req_test_bandit"
-  @version "0.1.2"
+  @version "0.1.3"
 
   def application do
     [
@@ -18,7 +18,7 @@ defmodule ReqTestBandit.MixProject do
     [
       {:bandit, "~> 1.0", optional: true},
       {:ex_doc, ">= 0.0.0", only: :docs, runtime: false, warn_if_outdated: true},
-      {:req, "~> 0.5.0"},
+      {:req, "~> 0.5.0 or ~> 0.6.0"},
       {:x509, "~> 0.9.0", optional: true}
     ]
   end
