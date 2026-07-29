@@ -41,7 +41,7 @@ defmodule ReqTestBandit do
       callers = Process.get(:"$callers", [])
       :telemetry.attach(ref, [:bandit, :request, :start], &__MODULE__.listener/4, callers)
 
-      %{request | adapter: &run_bandit/1}
+      %{request | adapter: __MODULE__}
       |> Req.Request.delete_option(:plug)
       |> Req.Request.put_private(:bandit_plug, request.options[:plug])
       |> Req.Request.put_private(:telemetry_ref, ref)
@@ -50,10 +50,10 @@ defmodule ReqTestBandit do
     end
   end
 
-  defp run_bandit(request)
+  def run(request)
 
   if Code.ensure_loaded?(Bandit) do
-    defp run_bandit(request) do
+    def run(request) do
       if Req.Request.get_option(request, :x509, false) do
         run_https(request)
       else
@@ -61,7 +61,7 @@ defmodule ReqTestBandit do
       end
     end
   else
-    defp run_bandit(_request) do
+    def run(_request) do
       require Logger
 
       Logger.error("""
