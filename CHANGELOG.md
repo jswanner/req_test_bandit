@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.1 (2026-10-21)
+
+  * Support Req v0.8 (retaining support for v0.7)
+
 ## v0.2.0 (2026-07-29)
 
   * Resolve deprecation for Req >= v0.7 (drop support for < v0.7)

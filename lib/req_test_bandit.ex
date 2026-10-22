@@ -50,43 +50,78 @@ defmodule ReqTestBandit do
     end
   end
 
-  def run(request)
+  if Code.ensure_loaded?(Req.Finch) and function_exported?(Req.Finch, :stream, 4) do
+    @behaviour Req.Adapter
+    @impl true
+    def stream(request, acc, fun, state)
 
-  if Code.ensure_loaded?(Bandit) do
-    def run(request) do
-      if Req.Request.get_option(request, :x509, false) do
-        run_https(request)
-      else
-        run_http(request)
+    if Code.ensure_loaded?(Bandit) do
+      def stream(request, acc, fun, state) do
+        request =
+          if Req.Request.get_option(request, :x509, false) do
+            put_https(request)
+          else
+            put_http(request)
+          end
+
+        Req.Finch.stream(request, acc, fun, state)
+      end
+    else
+      def stream(_request, _acc, _fun, _state) do
+        require Logger
+
+        Logger.error("""
+        Could not find bandit dependency.
+
+        Please add :bandit to your dependencies:
+
+            {:bandit, "~> 1.7"}
+        """)
+
+        raise "missing bandit dependency"
       end
     end
   else
-    def run(_request) do
-      require Logger
+    def run(request)
 
-      Logger.error("""
-      Could not find bandit dependency.
+    if Code.ensure_loaded?(Bandit) do
+      def run(request) do
+        request =
+          if Req.Request.get_option(request, :x509, false) do
+            put_https(request)
+          else
+            put_http(request)
+          end
 
-      Please add :bandit to your dependencies:
+        Req.Finch.run(request)
+      end
+    else
+      def run(_request) do
+        require Logger
 
-          {:bandit, "~> 1.7"}
-      """)
+        Logger.error("""
+        Could not find bandit dependency.
 
-      raise "missing bandit dependency"
+        Please add :bandit to your dependencies:
+
+            {:bandit, "~> 1.7"}
+        """)
+
+        raise "missing bandit dependency"
+      end
     end
   end
 
-  defp run_http(request) do
+  defp put_http(request) do
     handler = Req.Request.get_private(request, :bandit_plug)
     {:ok, pid} = Bandit.start_link(plug: handler, port: 0, scheme: :http, startup_log: false)
     {:ok, {_, port}} = ThousandIsland.listener_info(pid)
 
     update_in(request.url, &%{&1 | host: "localhost", port: port, scheme: "http"})
-    |> Req.Finch.run()
   end
 
   if Code.ensure_loaded?(X509) do
-    defp run_https(request) do
+    defp put_https(request) do
       suite = X509.Test.Suite.new()
       handler = Req.Request.get_private(request, :bandit_plug)
 
@@ -118,12 +153,10 @@ defmodule ReqTestBandit do
           &Keyword.put(&1, :cacerts, suite.cacerts)
         )
 
-      request = Req.Request.put_option(request, :connect_options, connect_options)
-
-      Req.Finch.run(request)
+      Req.Request.put_option(request, :connect_options, connect_options)
     end
   else
-    defp run_https(_request) do
+    defp put_https(_request) do
       require Logger
 
       Logger.error("""

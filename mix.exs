@@ -2,7 +2,7 @@ defmodule ReqTestBandit.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/jswanner/req_test_bandit"
-  @version "0.2.0"
+  @version "0.2.1"
 
   def application do
     [
@@ -18,7 +18,7 @@ defmodule ReqTestBandit.MixProject do
     [
       {:bandit, "~> 1.0", optional: true},
       {:ex_doc, ">= 0.0.0", only: :docs, runtime: false, warn_if_outdated: true},
-      {:req, "~> 0.7.0"},
+      {:req, "~> 0.7.0 or ~> 0.8.0-rc.0", req_opts()},
       {:x509, "~> 0.9.0", optional: true}
     ]
   end
@@ -45,5 +45,18 @@ defmodule ReqTestBandit.MixProject do
       start_permanent: Mix.env() == :prod,
       version: @version
     ]
+  end
+
+  defp req_opts do
+    cond do
+      path = System.get_env("REQ_PATH") ->
+        [path: path]
+
+      ref = System.get_env("REQ_REF") ->
+        [github: "wojtekmach/req", ref: ref]
+
+      true ->
+        []
+    end
   end
 end
